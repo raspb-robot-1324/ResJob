@@ -97,7 +97,7 @@ class App(ctk.CTk):
 from openai import OpenAI
 import customtkinter as ctk
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="sk--")
 
 ft = ""
 lt = ""
