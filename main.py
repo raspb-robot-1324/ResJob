@@ -1,38 +1,7 @@
 import requests
 import json
-
-
-def findjobs():
-    url = "https://linkedin-jobs-scraper-api.p.rapidapi.com/jobs"
-
-    title = input("What job would you like? ")
-    location = input("Where are you? ")
-
-    payload = {
-        "title": title,
-        "location": location,
-        "rows": 1
-    }
-    headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": "4addef27aemshcff167ca509dae0p11d1efjsn50d8839241b4",
-        "X-RapidAPI-Host": "linkedin-jobs-scraper-api.p.rapidapi.com"
-    }
-
-    response = requests.post(url, json=payload, headers=headers)
-
-    allJobs = []
-    a = json.loads(response.content)
-    for job in a:
-        thisJob = "Title:", job["title"], "Company name:", job["companyName"], "Location:", job[
-            "location"], "Description", job["description"]
-        allJobs.append(thisJob)
-
-    for i in allJobs:
-        print(i)
-
-
 import customtkinter as ctk
+
 
 ctk.set_appearance_mode("Light")
 
@@ -58,8 +27,9 @@ class App(ctk.CTk):
                             sticky="ew")
 
         # live Entry Field
+
         self.liveEntry = ctk.CTkEntry(self,
-                                      placeholder_text="1234 Apple St. Montreal, QC H2C4X3")
+                                      placeholder_text="1234 Apple St. Montreal, QC H2C4X3", textvariable=entry)
         self.liveEntry.grid(row=0, column=1,
                             columnspan=3, padx=40,
                             pady=40, sticky="ew")
@@ -97,7 +67,43 @@ class App(ctk.CTk):
 from openai import OpenAI
 import customtkinter as ctk
 
-client = OpenAI(api_key="sk--")
+
+
+
+def findjobs():
+    global entry
+    url = "https://linkedin-jobs-scraper-api.p.rapidapi.com/jobs"
+
+    title = input("What job would you like? ")
+    location = input("Where are you? ")
+
+    payload = {
+        "title": title,
+        "location": location,
+        "rows": 1
+    }
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": "4addef27aemshcff167ca509dae0p11d1efjsn50d8839241b4",
+        "X-RapidAPI-Host": "linkedin-jobs-scraper-api.p.rapidapi.com"
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+
+    allJobs = []
+    a = json.loads(response.content)
+    for job in a:
+        thisJob = "Title:", job["title"], "Company name:", job["companyName"], "Location:", job[
+            "location"], "Description", job["description"]
+        allJobs.append(thisJob)
+
+    entry = allJobs
+
+    for i in allJobs:
+
+        print(i)
+
+client = OpenAI(api_key="YOUR_API_KEY")
 
 ft = ""
 lt = ""
@@ -109,7 +115,7 @@ hs = ""
 un = ""
 
 app = ctk.CTk()
-
+entry = ctk.StringVar()
 ftextbox = ctk.CTkTextbox(app)
 ftextbox.configure(state="normal")
 ftextbox = ctk.CTkTextbox(master=app, width=200, height=20)
@@ -191,19 +197,26 @@ palabel.configure(text="Past jobs:")
 palabel.place(relx=0.2, rely=0.8, anchor='s')
 
 pa = ""
+new_entry = ctk.StringVar()
+
+aiEntry = ctk.CTkEntry(app,
+                              placeholder_text="1234 Apple St. Montreal, QC H2C4X3", textvariable=new_entry)
+aiEntry.grid(row=0, column=1,
+                    columnspan=3, padx=40,
+                    pady=40, sticky="ew")
 
 
 def generate_resume():
-    global ft, lt, ct, em, pn, ep, hs, un, pa
-    ft = ftextbox.get(1.0, ctk.END)
-    lt = ltextbox.get(1.0, ctk.END)
-    ct = ctextbox.get(1.0, ctk.END)
-    em = emtextbox.get(1.0, ctk.END)
-    pn = ptextbox.get(1.0, ctk.END)
-    ep = etextbox.get(1.0, ctk.END)
-    hs = htextbox.get(1.0, ctk.END)
-    un = utextbox.get(1.0, ctk.END)
-    pa = patextbox.get(1.0, ctk.END)
+    global ft, lt, ct, em, pn, ep, hs, un, pa, aiEntry
+    ft = ftextbox.get(0.1, ctk.END)
+    lt = ltextbox.get(0.1, ctk.END)
+    ct = ctextbox.get(0.1, ctk.END)
+    em = emtextbox.get(0.1, ctk.END)
+    pn = ptextbox.get(0.1, ctk.END)
+    ep = etextbox.get(0.1, ctk.END)
+    hs = htextbox.get(0.1, ctk.END)
+    un = utextbox.get(0.1, ctk.END)
+    pa = patextbox.get(0.1, ctk.END)
     print(ft, lt, ct, em, pn, ep, hs, un, pa)
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -213,6 +226,7 @@ def generate_resume():
     )
 
     print(completion.choices[0].message.content)
+    aiEntry = completion.choices[0].message.content
 
 
 def switch():
